@@ -4,22 +4,47 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Image_Document_Converter"
-        xmlns:behavior="clr-namespace:IDC.Behaviors"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:vm="clr-namespace:IDC.ViewModels"
+        xmlns:cvt="clr-namespace:IDC.Converter"
+        xmlns:helper="clr-namespace:IDC.Helper"
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="1200"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent">
 
-    <Border CornerRadius="8" Background="{DynamicResource BrushBackground}">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="40" 
+                      ResizeBorderThickness="8" 
+                      UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <cvt:BoolToGridLengthConverter x:Key="BoolToGridLengthConverter" />
+            <BooleanToVisibilityConverter x:Key="BoolToVisible" />
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Border CornerRadius="8" Background="{DynamicResource BrushBackground}" BorderThickness="1" BorderBrush="Gray">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="40" />
                 <RowDefinition Height="1" />
                 <RowDefinition />
+                <RowDefinition Height="1" />
+                <RowDefinition Height="10" />
             </Grid.RowDefinitions>
 
+            <!-- 구분 선 -->
             <Border Grid.Row="1" BorderThickness="0" Background="Gray" Margin="10,0" />
+            <Border Grid.Row="3" BorderThickness="0" Background="Gray" Margin="10,0" />
 
-            <Grid Grid.Row="0" Background="Transparent" behavior:WindowTitleBarBehavior.IsDraggable="True">
+            <!-- 타이틀 바 영역 -->
+            <Grid Grid.Row="0" Background="Transparent" MouseLeftButtonDown="TitleBarMouseLeftDownEvent">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
@@ -27,10 +52,10 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="1" Style="{StaticResource TitleButtonStyle}" Click="WindowMinimizingEvent">
+                <Button Grid.Column="1" WindowChrome.IsHitTestVisibleInChrome="True" Style="{StaticResource TitleButtonStyle}" Click="WindowMinimizingEvent">
                     <Path Style="{StaticResource TitleBar_Minimize}" />
                 </Button>
-                <Button Grid.Column="2" Style="{StaticResource TitleButtonStyle}" Click="WindowMaximizedEvent">
+                <Button Grid.Column="2" WindowChrome.IsHitTestVisibleInChrome="True" Style="{StaticResource TitleButtonStyle}" Click="WindowMaximizedEvent">
                     <Path>
                         <Path.Style>
                             <Style TargetType="Path" BasedOn="{StaticResource TitleBar_Maximize}">
@@ -43,13 +68,171 @@
                         </Path.Style>
                     </Path>
                 </Button>
-                <Button Grid.Column="3" Style="{StaticResource TitleCloseButtonStyle}" Click="WindowCloseEvent">
+                <Button Grid.Column="3" WindowChrome.IsHitTestVisibleInChrome="True" Style="{StaticResource TitleCloseButtonStyle}" Click="WindowCloseEvent">
                     <Path Style="{StaticResource TitleBar_Close}" />
                 </Button>
             </Grid>
 
             <Grid Grid.Row="2">
-                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" AllowDrop="True" 
+                      helper:FileDropBehavior.DropCommand="{Binding FileDropCommand}"
+                      helper:FileDropBehavior.OverlayElement="{Binding ElementName=DragOverBorder}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30" />
+                        <RowDefinition Height="1" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="1" BorderThickness="0" Background="Gray" Margin="10,0" />
+
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="1" Style="{StaticResource IconButtonStyle}" Command="{Binding OpenItemsCommand}">
+                            <Path Width="30" Height="30" Fill="#2196F3" Data="M 6,8 H 12 L 14,11 H 24 V 24 H 6 Z" />
+                        </Button>
+                        <Button Grid.Column="2" Style="{StaticResource IconButtonStyle}" Command="{Binding ClearItemListCommand}">
+                            <Path Width="30" Height="30" Fill="#2196F3" Data="M 11,4 H 19 V 6 H 24 V 9 H 6 V 6 H 11 Z M 8,11 H 22 L 20,25 H 10 Z" />
+                        </Button>
+
+                        <Button Grid.Column="5" Style="{StaticResource IconButtonStyle}" Command="{Binding PreviewToggleCommand}">
+                            <Path Width="30" Height="30" Fill="#2196F3" Data="M 4,6 H 26 V 24 H 4 Z M 8,10 H 22 V 20 H 8 Z M 18,12 A 1.5,1.5 0 1,1 18,12.01 M 10,18 L 13,14 L 16,18 L 18,16 L 20,18 Z" />
+                        </Button>
+                    </Grid>
+
+                    <Grid Grid.Row="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" MinWidth="150" />
+                            <ColumnDefinition Width="5" helper:GridColumnHelper.IsVisible="{Binding IsPreviewVisible}" />
+                            <ColumnDefinition x:Name="PreviewColumn" Width="300" helper:GridColumnHelper.IsVisible="{Binding IsPreviewVisible}" />
+                        </Grid.ColumnDefinitions>
+
+                        <Thumb Grid.Column="1" Width="5" Cursor="SizeWE" Background="Gray" DragDelta="Splitter_DragDelta"
+                            Visibility="{Binding IsPreviewVisible, Converter={StaticResource BoolToVisible}}" />
+
+                        <ItemsControl ItemsSource="{Binding ItemList}" Background="Transparent">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Vertical" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button>
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Setter Property="Command" Value="{Binding DataContext.ItemClickCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                <Setter Property="CommandParameter" Value="{Binding}" />
+                                                <Setter Property="ToolTip" Value="{Binding FileInfo.FullName}" />
+
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Margin="10, 2" Height="30" BorderThickness="0, 0, 0, 1" BorderBrush="LightGray" Background="{TemplateBinding Background}">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="12" />
+                                                                        <ColumnDefinition Width="Auto" />
+                                                                        <ColumnDefinition Width="12" />
+                                                                        <ColumnDefinition Width="*" />
+                                                                    </Grid.ColumnDefinitions>
+
+                                                                    <Image Grid.Column="1" Source="{Binding IconUri}" Width="20" Height="20" VerticalAlignment="Center" />
+                                                                    <TextBlock Grid.Column="3" Text="{Binding FileName}" VerticalAlignment="Center" />
+                                                                </Grid>
+                                                            </Border>
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background">
+                                                                        <Setter.Value>
+                                                                            <SolidColorBrush Color="Black" Opacity="0.1" />
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                </Trigger>
+                                                                <Trigger Property="IsPressed" Value="True">
+                                                                    <Setter Property="Background">
+                                                                        <Setter.Value>
+                                                                            <SolidColorBrush Color="Black" Opacity="0.15" />
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                </Trigger>
+                                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                                    <Setter Property="Background">
+                                                                        <Setter.Value>
+                                                                            <SolidColorBrush Color="LightSkyBlue" Opacity="0.3" />
+                                                                        </Setter.Value>
+                                                                    </Setter>
+                                                                </DataTrigger>
+                                                            </ControlTemplate.Triggers>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Grid Grid.Column="2" Background="Gray"
+                              Visibility="{Binding IsPreviewVisible, Converter={StaticResource BoolToVisible}}">
+                            <Image Margin="20" Stretch="Uniform" Source="{Binding SelectedImage}" />
+                        </Grid>
+                    </Grid>
+
+                    <Border Grid.RowSpan="3" x:Name="DragOverBorder" Visibility="Collapsed">
+                        <Border.Background>
+                            <SolidColorBrush Color="Black" Opacity="0.5" />
+                        </Border.Background>
+
+                        <Border VerticalAlignment="Center" HorizontalAlignment="Center" BorderThickness="3" BorderBrush="{DynamicResource BrushText}" CornerRadius="50" Width="450" Height="100">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="24" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition />
+                                </Grid.ColumnDefinitions>
+
+                                <Grid Grid.Column="1" Width="50" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                    <!-- 1. 바깥쪽 동그라미 (아웃라인 스타일) -->
+                                    <Path Stroke="{DynamicResource BrushText}" 
+                                            StrokeThickness="3"
+                                            Data="M 5,25 A 20,20 0 1,0 45,25 A 20,20 0 1,0 5,25" />
+
+                                    <!-- 2. 안쪽 플러스(+) 모양 -->
+                                    <Path Fill="{DynamicResource BrushText}"
+                                            Data="M 23,16 H 27 V 23 H 34 V 27 H 27 V 34 H 23 V 27 H 16 V 23 H 23 Z" />
+
+                                </Grid>
+                                <TextBlock Grid.Column="3" Text="파일을 여기에 드롭해주세요" VerticalAlignment="Center" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource BrushText}" />
+                            </Grid>
+                        </Border>
+                    </Border>
+
+                </Grid>
+
+                <Grid Grid.Column="1" Width="200">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="15*"/>
+                        <RowDefinition Height="731*"/>
+                    </Grid.RowDefinitions>
+                    
+                </Grid>
             </Grid>
         </Grid>
     </Border>

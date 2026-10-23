@@ -15,17 +15,39 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Icons\icon_file.png" />
+    <None Remove="Resources\Icons\icon_jpg.png" />
+    <None Remove="Resources\Icons\icon_pdf.png" />
+    <None Remove="Resources\Icons\icon_png.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Resources\Icons\icon.ico" />
     <Content Include="Resources\Icons\icon.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <Folder Include="Behaviors\" />
     <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Icons\icon_file.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Icons\icon_jpg.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Icons\icon_pdf.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Icons\icon_png.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>
