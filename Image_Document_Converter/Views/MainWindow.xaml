@@ -9,7 +9,7 @@
         xmlns:cvt="clr-namespace:IDC.Converter"
         xmlns:helper="clr-namespace:IDC.Helper"
         mc:Ignorable="d"
-        Title="MainWindow" Height="800" Width="1200"
+        Title="Document Converter" Height="800" Width="1200"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent">
 
     <WindowChrome.WindowChrome>
@@ -228,10 +228,28 @@
 
                 <Grid Grid.Column="1" Width="200">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="15*"/>
-                        <RowDefinition Height="731*"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
                     </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition />
+                        </Grid.ColumnDefinitions>
+
+                        <CheckBox Grid.Column="0" IsChecked="{Binding IsUseOnePdf, Mode=TwoWay}" />
+                        <TextBlock Grid.Column="1" Text="이미지 파일 전체 하나의 PDF로 저장" />
+                    </Grid>
                     
+                    <Button Grid.Row="1" Content="IMG to PDF" Command="{Binding ConvertImageToPdfCommand}" />
+                    <Button Grid.Row="2" Content="PDF to JPG" Command="{Binding ConvertPdfToJpgCommand}" />
+                    <Button Grid.Row="3" Content="HEIC to JPG" Command="{Binding ConvertHeicToJpgCommand}" />
+
                 </Grid>
             </Grid>
         </Grid>

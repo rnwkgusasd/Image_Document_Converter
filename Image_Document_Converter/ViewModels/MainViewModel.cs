@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using IDC.Models;
+using IDC.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,6 +11,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Header;
 
 namespace IDC.ViewModels;
 
@@ -25,11 +27,16 @@ public partial class MainViewModel : ObservableObject
         
     }
 
+    public ObservableCollection<ConvertItemRow> ItemList { get; set; } = new ObservableCollection<ConvertItemRow>();
+
     [ObservableProperty]
     private bool isPreviewVisible = true;
 
     [ObservableProperty]
     private ImageSource? selectedImage = null;
+
+    [ObservableProperty]
+    private bool isUseOnePdf = false;
 
     private void UploadFiles(IEnumerable<string> files)
     {
@@ -129,5 +136,66 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(ItemList));
     }
 
-    public ObservableCollection<ConvertItemRow> ItemList { get; set; } = new ObservableCollection<ConvertItemRow>();
+    private IEnumerable<FileInfo> GetItemFileInfoList() => [.. ItemList.Select(x => x.FileInfo)];
+
+    [RelayCommand]
+    private void ConvertImageToPdf()
+    {
+        var items = GetItemFileInfoList();
+
+        if (!items.Any())
+        {
+            System.Windows.MessageBox.Show("선택 된 파일이 없습니다.", "파일 없음", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        if(IsUseOnePdf)
+        {
+            DocumentConvertService.ConvertImageToPdf(items, $@"{items.First().DirectoryName}\{items.First().Name.Replace(items.First().Extension, "")}.pdf");
+        }
+        else
+        {
+            foreach(var item in items)
+            {
+                DocumentConvertService.ConvertImageToPdf([item], $@"{item.DirectoryName}\{item.Name.Replace(item.Extension, "")}.pdf");
+            }
+        }
+    }
+
+    [RelayCommand]
+    private void ConvertPdfToJpg()
+    {
+        var items = GetItemFileInfoList();
+
+        if (!items.Any())
+        {
+            System.Windows.MessageBox.Show("선택 된 파일이 없습니다.", "파일 없음", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        foreach(var item in items)
+        {
+            DocumentConvertService.ConvertPdfToImage(item);
+        }
+    }
+
+    [RelayCommand]
+    private void ConvertHeicToJpg()
+    {
+        var items = GetItemFileInfoList();
+
+        if (!items.Any())
+        {
+            System.Windows.MessageBox.Show("선택 된 파일이 없습니다.", "파일 없음", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        DocumentConvertService.ConvertHeicToJpg(items);
+    }
+
+    [RelayCommand]
+    private void ConvertHeicToPdf()
+    {
+
+    }
 }
