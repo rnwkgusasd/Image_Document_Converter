@@ -28,11 +28,14 @@
 
   <ItemGroup>
     <Folder Include="Behaviors\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="15.0.0" />
+    <PackageReference Include="Magick.NET.Core" Version="15.0.0" />
+    <PackageReference Include="PDFsharp" Version="6.2.4" />
+    <PackageReference Include="PDFtoImage" Version="5.4.0" />
   </ItemGroup>
 
   <ItemGroup>
