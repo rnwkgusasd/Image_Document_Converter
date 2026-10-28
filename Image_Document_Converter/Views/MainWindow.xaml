@@ -98,6 +98,8 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="1" Style="{StaticResource IconButtonStyle}" Command="{Binding OpenItemsCommand}">
@@ -107,7 +109,14 @@
                             <Path Width="30" Height="30" Fill="#2196F3" Data="M 11,4 H 19 V 6 H 24 V 9 H 6 V 6 H 11 Z M 8,11 H 22 L 20,25 H 10 Z" />
                         </Button>
 
-                        <Button Grid.Column="5" Style="{StaticResource IconButtonStyle}" Command="{Binding PreviewToggleCommand}">
+                        <Button Grid.Column="5" Style="{StaticResource IconButtonStyle}" Command="{Binding RotateImageCommand}" CommandParameter="90">
+                            <Path Width="30" Height="30" Fill="#2196F3" Data="M15,5 C9.48,5 5,9.48 5,15 C5,20.52 9.48,25 15,25 C18.15,25 20.94,23.55 22.75,21.32 L20.32,18.89 C19.04,20.51 17.13,21.5 15,21.5 C11.41,21.5 8.5,18.59 8.5,15 C8.5,11.41 11.41,8.5 15,8.5 C17.38,8.5 19.46,9.79 20.57,11.72 L17.5,11.72 L17.5,14.72 L25,14.72 L25,7.22 L22,7.22 L22,9.66 C20.45,7.19 17.92,5.5 15,5 Z" />
+                        </Button>
+                        <Button Grid.Column="6" Style="{StaticResource IconButtonStyle}" Command="{Binding RotateImageCommand}" CommandParameter="-90">
+                            <Path Width="30" Height="30" Fill="#2196F3" Data="M15,5 C12.08,5 9.55,7.19 8,9.66 L8,7.22 L5,7.22 L5,14.72 L12.5,14.72 L12.5,11.72 L9.43,11.72 C10.54,9.79 12.62,8.5 15,8.5 C18.59,8.5 21.5,11.41 21.5,15 C21.5,18.59 18.59,21.5 15,21.5 C12.87,21.5 10.96,20.51 9.68,18.89 L7.25,21.32 C9.06,23.55 11.85,25 15,25 C20.52,25 25,20.52 25,15 C25,9.48 20.52,5 15,5 Z" />
+                        </Button>
+
+                        <Button Grid.Column="7" Style="{StaticResource IconButtonStyle}" Command="{Binding PreviewToggleCommand}">
                             <Path Width="30" Height="30" Fill="#2196F3" Data="M 4,6 H 26 V 24 H 4 Z M 8,10 H 22 V 20 H 8 Z M 18,12 A 1.5,1.5 0 1,1 18,12.01 M 10,18 L 13,14 L 16,18 L 18,16 L 20,18 Z" />
                         </Button>
                     </Grid>

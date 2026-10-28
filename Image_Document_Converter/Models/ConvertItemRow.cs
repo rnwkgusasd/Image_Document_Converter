@@ -19,4 +19,7 @@ public partial class ConvertItemRow : ObservableObject
 
     [ObservableProperty]
     private Uri iconUri;
+
+    [ObservableProperty]
+    private double angle;
 }

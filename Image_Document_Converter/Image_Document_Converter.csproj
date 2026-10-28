@@ -12,6 +12,12 @@
     <AssemblyName>IDC</AssemblyName>
     <ApplicationIcon>Resources\Icons\icon.ico</ApplicationIcon>
     <UseWindowsForms>True</UseWindowsForms>
+
+	  <!-- 타겟 런타임을 윈도우 x64로 고정 (필요에 따라 win-x86, win-arm64 등으로 변경 가능) -->
+	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+
+	  <!-- 자체 포함(Self-contained) 배포 시 윈도우용 외 다른 플랫폼 런타임 애셋 자동 제외 -->
+	  <SelfContained>true</SelfContained>
   </PropertyGroup>
 
   <ItemGroup>

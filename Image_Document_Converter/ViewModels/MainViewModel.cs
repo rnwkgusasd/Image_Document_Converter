@@ -2,9 +2,11 @@
 using CommunityToolkit.Mvvm.Input;
 using IDC.Models;
 using IDC.Services;
+using PdfSharp.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.SqlTypes;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -34,6 +36,8 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private ImageSource? selectedImage = null;
+
+    private ConvertItemRow? SelectedItem => ItemList.FirstOrDefault(x => x.IsSelected);
 
     [ObservableProperty]
     private bool isUseOnePdf = false;
@@ -87,7 +91,9 @@ public partial class MainViewModel : ObservableObject
                         bitmap.CacheOption = BitmapCacheOption.OnLoad;
                         bitmap.EndInit();
 
-                        SelectedImage = bitmap;
+                        var rotatedBitmap = new TransformedBitmap(bitmap, new RotateTransform(selectedItem.Angle));
+
+                        SelectedImage = rotatedBitmap;
                     }
                     catch (Exception ex)
                     {
@@ -111,14 +117,19 @@ public partial class MainViewModel : ObservableObject
         var dialog = new OpenFileDialog
         {
             Multiselect = true,
-            Filter = "PDF Files|*.pdf|PNG Image Files|*.png|JPG Image Files|*.jpg|All Files|*.*"
+            Filter = "PDF Files|*.pdf|" +
+            "PNG Image Files|*.png|" +
+            "JPG Image Files|*.jpg|" +
+            "HEIC Image Files|*.heic|" +
+            "HEIF Image Files|*.heif|" +
+            "All Files|*.*"
         };
 
         if(dialog.ShowDialog() == DialogResult.OK)
         {
             var files = dialog.FileNames;
 
-            if(files.Any(x => !x.EndsWith(".pdf") && !x.EndsWith(".png") && !x.EndsWith(".jpg")))
+            if(files.Any(x => !x.EndsWith(".pdf") && !x.EndsWith(".png") && !x.EndsWith(".jpg") && !x.EndsWith(".heic") && !x.EndsWith(".heif")))
             {
                 System.Windows.MessageBox.Show("형식에 맞지 않는 파일이 선택되었습니다.", "파일 선택 에러", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -151,13 +162,13 @@ public partial class MainViewModel : ObservableObject
 
         if(IsUseOnePdf)
         {
-            DocumentConvertService.ConvertImageToPdf(items, $@"{items.First().DirectoryName}\{items.First().Name.Replace(items.First().Extension, "")}.pdf");
+            DocumentConvertService.ConvertImageToPdf(ItemList, $@"{items.First().DirectoryName}\{items.First().Name.Replace(items.First().Extension, "")}.pdf");
         }
         else
         {
-            foreach(var item in items)
+            foreach(var item in ItemList)
             {
-                DocumentConvertService.ConvertImageToPdf([item], $@"{item.DirectoryName}\{item.Name.Replace(item.Extension, "")}.pdf");
+                DocumentConvertService.ConvertImageToPdf([item], $@"{item.FileInfo.DirectoryName}\{item.FileInfo.Name.Replace(item.FileInfo.Extension, "")}.pdf");
             }
         }
     }
@@ -193,9 +204,22 @@ public partial class MainViewModel : ObservableObject
         DocumentConvertService.ConvertHeicToJpg(items);
     }
 
-    [RelayCommand]
-    private void ConvertHeicToPdf()
-    {
 
+    [RelayCommand]
+    private void RotateImage(object angle)
+    {
+        if(SelectedItem == null || SelectedImage == null) return;
+
+        if (SelectedImage is BitmapSource bitmapSource)
+        {
+            var angleValue = double.Parse(angle.ToString());
+
+            SelectedItem.Angle += angleValue;
+
+            if (SelectedItem.Angle == 360 || SelectedItem.Angle == -360) SelectedItem.Angle = 0;
+
+            var rotatedBitmap = new TransformedBitmap(bitmapSource, new RotateTransform(angleValue));
+            SelectedImage = rotatedBitmap;
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace IDC.Helper;
 
 public static class FileDropBehavior
 {
-    private static readonly string[] AllowedExtensions = { ".jpg", ".png", ".pdf" };
+    private static readonly string[] AllowedExtensions = { ".jpg", ".png", ".pdf", ".heic", ".heif" };
 
     public static readonly DependencyProperty DropCommandProperty =
         DependencyProperty.RegisterAttached(
